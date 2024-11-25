@@ -96,12 +96,14 @@ namespace duckdb
         return perform_https_request(NOTION_API_HOST, path, token, method, body);
     }
 
+    // TODO: pagination - collect all databases if multiple requests are needed
     std::string list_databases(const std::string &token)
     {
         return call_notion_api(token, HttpMethod::POST, "/v1/search", "{\"filter\":{\"value\":\"database\", \"property\":\"object\"}}");
     }
 
-    std::string delete_sheet_data(const std::string &spreadsheet_id, const std::string &token, const std::string &sheet_name)
+    std::string
+    delete_sheet_data(const std::string &spreadsheet_id, const std::string &token, const std::string &sheet_name)
     {
         std::string host = "sheets.googleapis.com";
         std::string path = "/v4/spreadsheets/" + spreadsheet_id + "/values/" + sheet_name + ":clear";
