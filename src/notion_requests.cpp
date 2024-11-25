@@ -102,6 +102,18 @@ namespace duckdb
         return call_notion_api(token, HttpMethod::POST, "/v1/search", "{\"filter\":{\"value\":\"database\", \"property\":\"object\"}}");
     }
 
+    // This gets the schema of the database
+    std::string get_database(const std::string &token, const std::string &database_id)
+    {
+        return call_notion_api(token, HttpMethod::GET, "/v1/databases/" + database_id, "");
+    }
+
+    // TODO: pagination, maybe filter if needed
+    std::string query_database(const std::string &token, const std::string &database_id)
+    {
+        return call_notion_api(token, HttpMethod::POST, "/v1/databases/" + database_id + "/query", "{}");
+    }
+
     std::string
     delete_sheet_data(const std::string &spreadsheet_id, const std::string &token, const std::string &sheet_name)
     {
