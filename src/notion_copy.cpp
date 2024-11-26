@@ -58,7 +58,7 @@ namespace duckdb
         }
 
         std::string token = token_value.ToString();
-        std::string spreadsheet_id = extract_spreadsheet_id(file_path);
+        std::string database_id = extract_database_id(file_path);
         std::string sheet_id = extract_sheet_id(file_path);
         std::string sheet_name = "Sheet1";
 

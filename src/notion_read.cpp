@@ -140,29 +140,29 @@ namespace duckdb
         // Use the SecretManager to get the token
         auto &secret_manager = SecretManager::Get(context);
         auto transaction = CatalogTransaction::GetSystemCatalogTransaction(context);
-        auto secret_match = secret_manager.LookupSecret(transaction, "gsheet", "gsheet");
+        auto secret_match = secret_manager.LookupSecret(transaction, "notion", "notion");
 
         if (!secret_match.HasMatch())
         {
-            throw InvalidInputException("No 'gsheet' secret found. Please create a secret with 'CREATE SECRET' first.");
+            throw InvalidInputException("No 'notion' secret found. Please create a secret with 'CREATE SECRET' first.");
         }
 
         auto &secret = secret_match.GetSecret();
-        if (secret.GetType() != "gsheet")
+        if (secret.GetType() != "notion")
         {
-            throw InvalidInputException("Invalid secret type. Expected 'gsheet', got '%s'", secret.GetType());
+            throw InvalidInputException("Invalid secret type. Expected 'notion', got '%s'", secret.GetType());
         }
 
         const auto *kv_secret = dynamic_cast<const KeyValueSecret *>(&secret);
         if (!kv_secret)
         {
-            throw InvalidInputException("Invalid secret format for 'gsheet' secret");
+            throw InvalidInputException("Invalid secret format for 'notion' secret");
         }
 
         Value token_value;
         if (!kv_secret->TryGetValue("token", token_value))
         {
-            throw InvalidInputException("'token' not found in 'gsheet' secret");
+            throw InvalidInputException("'token' not found in 'notion' secret");
         }
 
         std::string token = token_value.ToString();
