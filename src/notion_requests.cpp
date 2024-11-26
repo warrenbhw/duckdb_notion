@@ -44,6 +44,12 @@ namespace duckdb
         case HttpMethod::PUT:
             method_str = "PUT";
             break;
+        case HttpMethod::PATCH:
+            method_str = "PATCH";
+            break;
+        case HttpMethod::DELETE:
+            method_str = "DELETE";
+            break;
         }
 
         std::string request = method_str + " " + path + " HTTP/1.0\r\n";
@@ -114,19 +120,21 @@ namespace duckdb
         return call_notion_api(token, HttpMethod::POST, "/v1/databases/" + database_id + "/query", "{}");
     }
 
-    std::string
-    delete_sheet_data(const std::string &spreadsheet_id, const std::string &token, const std::string &sheet_name)
+    // TODO: update database - CRUD on database rows
+    std::string create_page(const std::string &token, const std::string &database_id, const std::string &body)
     {
-        std::string host = "sheets.googleapis.com";
-        std::string path = "/v4/spreadsheets/" + spreadsheet_id + "/values/" + sheet_name + ":clear";
-
-        return perform_https_request(host, path, token, HttpMethod::POST, "{}");
+        return call_notion_api(token, HttpMethod::POST, "/v1/databases/" + database_id + "/query", body);
     }
 
-    std::string get_spreadsheet_metadata(const std::string &spreadsheet_id, const std::string &token)
+    std::string update_page_properties(const std::string &token, const std::string &page_id, const std::string &body)
     {
-        std::string host = "sheets.googleapis.com";
-        std::string path = "/v4/spreadsheets/" + spreadsheet_id + "?&fields=sheets.properties";
-        return perform_https_request(host, path, token, HttpMethod::GET, "");
+        return call_notion_api(token, HttpMethod::PATCH, "/v1/pages/" + page_id, body);
     }
+
+    std::string delete_page(const std::string &token, const std::string &page_id)
+    {
+        return call_notion_api(token, HttpMethod::DELETE, "/v1/pages/" + page_id, "");
+    }
+
+    // TODO: create and delete databases?
 }

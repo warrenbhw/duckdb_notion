@@ -9,7 +9,9 @@ namespace duckdb
     {
         GET,
         POST,
-        PUT
+        PUT,
+        PATCH,
+        DELETE
     };
 
     std::string perform_https_request(const std::string &host, const std::string &path, const std::string &token,
