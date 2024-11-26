@@ -19,6 +19,14 @@ namespace duckdb
     std::string extract_spreadsheet_id(const std::string &input);
 
     /**
+     * Extracts the database ID from a Notion URL or returns the input if it's already a database ID.
+     * @param input A Notion URL or database ID
+     * @return The extracted database ID
+     * @throws InvalidInputException if the input is neither a valid URL nor a database ID
+     */
+    std::string extract_database_id(const std::string &input);
+
+    /**
      * Extracts the sheet ID from a Google Sheets URL
      * @param input A Google Sheets URL
      * @return The extracted sheet ID

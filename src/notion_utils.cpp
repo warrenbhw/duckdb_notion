@@ -10,6 +10,32 @@ using json = nlohmann::json;
 namespace duckdb
 {
 
+    // Examples inputs:
+    // https://www.notion.so/1499ce5d31c980249613ee3558225560?v=51c255cb2ead4c539bf90457b849a66e
+    // https://www.notion.so/1499ce5d31c980249613ee3558225560
+    // 1499ce5d31c980249613ee3558225560
+    //
+    // Output: 1499ce5d31c980249613ee3558225560
+    std::string extract_database_id(const std::string &input)
+    {
+        // If input is already just an ID (32 hex characters), return it
+        std::regex id_only_pattern("^[a-fA-F0-9]{32}$");
+        if (std::regex_match(input, id_only_pattern))
+        {
+            return input;
+        }
+
+        // Extract ID from Notion URL
+        std::regex notion_url_pattern("notion\\.so/(?:[^/]+/)?([a-fA-F0-9]{32})(?:\\?.*)?$");
+        std::smatch match;
+        if (std::regex_search(input, match, notion_url_pattern) && match.size() > 1)
+        {
+            return match.str(1);
+        }
+
+        throw duckdb::InvalidInputException("Invalid Notion database URL or ID format");
+    }
+
     std::string extract_spreadsheet_id(const std::string &input)
     {
         // Check if the input is already a sheet ID (no slashes)
