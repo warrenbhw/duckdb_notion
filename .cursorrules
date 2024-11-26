@@ -1,0 +1,22 @@
+I'm building a DuckDB extension for Notion.
+
+Here are some examples of DuckDB Extensions:
+- Google Sheets: https://github.com/evidence-dev/duckdb_gsheets
+- Azure: https://github.com/duckdb/duckdb_azure
+- HTTP(S): https://github.com/duckdb/duckdb/tree/main/extension/httpfs
+- Iceberg: https://github.com/duckdb/duckdb_iceberg
+
+In particular, the Google Sheets extension is the most similar to what we're trying to build, so it may be a good reference.
+Much of the starter code in this repo is based on the Google Sheets extension.
+
+In addition, for reference, here is the Notion API reference: https://developers.notion.com/reference/intro
+
+For the extension, we may want to use some of the following Notion API endpoints:
+- Authenticate: https://developers.notion.com/reference/authentication
+- List databases: https://developers.notion.com/reference/post-search
+- Get the schema of a database: https://developers.notion.com/reference/retrieve-a-database
+- Get the contents of a database: https://developers.notion.com/reference/post-database-query
+- Add a page (row) to a Notion database: https://developers.notion.com/reference/post-page
+- Get a specific page: https://developers.notion.com/reference/retrieve-a-page
+- Update page properties: https://developers.notion.com/reference/patch-page
+- Trash a page: https://developers.notion.com/reference/archive-a-page
