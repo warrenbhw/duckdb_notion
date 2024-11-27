@@ -11,7 +11,7 @@ namespace duckdb
 
     using json = nlohmann::json;
 
-    ReadSheetBindData::ReadSheetBindData(string database_id, string token, bool header)
+    ReadDatabaseBindData::ReadDatabaseBindData(string database_id, string token, bool header)
         : database_id(database_id), token(token), finished(false), row_index(0), header(header)
     {
         // response = call_notion_api(token, HttpMethod::GET, "/v1/databases/" + database_id, "");
