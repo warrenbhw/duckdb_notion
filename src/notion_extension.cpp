@@ -83,7 +83,7 @@ namespace duckdb
     static NotionConnectionData *GetConnectionData(ClientContext &context)
     {
         // auto api_key = GetNotionApiKey(context);
-        auto api_key = "your_key";
+        string api_key = "your_key";
         if (!api_key.empty())
         {
             return new NotionConnectionData(api_key);
