@@ -1,4 +1,5 @@
-build
+build/
+_deps/
 .idea
 cmake-build-debug
 duckdb_unittest_tempdir/
@@ -6,3 +7,5 @@ duckdb_unittest_tempdir/
 testext
 test/python/__pycache__/
 .Rhistory
+.env
+.config.env

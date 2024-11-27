@@ -9,7 +9,6 @@
 using json = nlohmann::json;
 namespace duckdb
 {
-
     // Examples inputs:
     // https://www.notion.so/1499ce5d31c980249613ee3558225560?v=51c255cb2ead4c539bf90457b849a66e
     // https://www.notion.so/1499ce5d31c980249613ee3558225560
@@ -59,48 +58,6 @@ namespace duckdb
         throw duckdb::InvalidInputException("Invalid Google Sheets URL or ID");
     }
 
-    std::string extract_sheet_id(const std::string &input)
-    {
-        if (input.find("docs.google.com/spreadsheets/d/") != std::string::npos && input.find("gid=") != std::string::npos)
-        {
-            std::regex sheet_id_regex("gid=([0-9]+)");
-            std::smatch match;
-            if (std::regex_search(input, match, sheet_id_regex) && match.size() > 1)
-            {
-                return match.str(1);
-            }
-        }
-        return "0";
-    }
-
-    std::string get_sheet_name_from_id(const std::string &spreadsheet_id, const std::string &sheet_id, const std::string &token)
-    {
-        std::string metadata_response = get_spreadsheet_metadata(spreadsheet_id, token);
-        json metadata = parseJson(metadata_response);
-        for (const auto &sheet : metadata["sheets"])
-        {
-            if (sheet["properties"]["sheetId"].get<int>() == std::stoi(sheet_id))
-            {
-                return sheet["properties"]["title"].get<std::string>();
-            }
-        }
-        throw duckdb::InvalidInputException("Sheet with ID %s not found", sheet_id);
-    }
-
-    std::string get_sheet_id_from_name(const std::string &spreadsheet_id, const std::string &sheet_name, const std::string &token)
-    {
-        std::string metadata_response = get_spreadsheet_metadata(spreadsheet_id, token);
-        json metadata = parseJson(metadata_response);
-        for (const auto &sheet : metadata["sheets"])
-        {
-            if (sheet["properties"]["title"].get<std::string>() == sheet_name)
-            {
-                return sheet["properties"]["sheetId"].get<std::string>();
-            }
-        }
-        throw duckdb::InvalidInputException("Sheet with name %s not found", sheet_name);
-    }
-
     json parseJson(const std::string &json_str)
     {
         try
@@ -131,30 +88,6 @@ namespace duckdb
             std::cerr << "Raw JSON string: " << json_str << std::endl;
             throw;
         }
-    }
-
-    SheetData getSheetData(const json &j)
-    {
-        SheetData result;
-        if (j.contains("range") && j.contains("majorDimension") && j.contains("values"))
-        {
-            result.range = j["range"].get<std::string>();
-            result.majorDimension = j["majorDimension"].get<std::string>();
-            result.values = j["values"].get<std::vector<std::vector<std::string>>>();
-        }
-        else if (j.contains("error"))
-        {
-            string message = j["error"]["message"].get<std::string>();
-            int code = j["error"]["code"].get<int>();
-            throw std::runtime_error("Google Sheets API error: " + std::to_string(code) + " - " + message);
-        }
-        else
-        {
-            std::cerr << "JSON does not contain expected fields" << std::endl;
-            std::cerr << "Raw JSON string: " << j.dump() << std::endl;
-            throw;
-        }
-        return result;
     }
 
     std::string generate_random_string(size_t length)
@@ -194,6 +127,41 @@ namespace duckdb
             }
         }
         return encoded;
+    }
+
+    std::string collect_paginated_results(
+        std::function<std::string(const std::string &cursor)> fetch_page)
+    {
+        std::string result;
+        std::string cursor;
+        bool has_more = true;
+
+        while (has_more)
+        {
+            // Use the provided function to fetch each page
+            std::string response = fetch_page(cursor);
+            auto json_response = nlohmann::json::parse(response);
+
+            if (result.empty())
+            {
+                result = response;
+            }
+            else
+            {
+                auto result_json = nlohmann::json::parse(result);
+                auto &results = result_json["results"];
+                results.insert(results.end(), json_response["results"].begin(), json_response["results"].end());
+                result = result_json.dump();
+            }
+
+            has_more = json_response["has_more"].get<bool>();
+            if (has_more)
+            {
+                cursor = json_response["next_cursor"].get<std::string>();
+            }
+        }
+
+        return result;
     }
 
 } // namespace duckdb

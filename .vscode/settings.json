@@ -73,7 +73,10 @@
     "unordered_set": "cpp",
     "valarray": "cpp",
     "variant": "cpp",
-    "algorithm": "cpp"
+    "algorithm": "cpp",
+    "execution": "cpp",
+    "memory": "cpp",
+    "print": "cpp"
   },
   "editor.acceptSuggestionOnEnter": "on",
   "editor.quickSuggestions": {

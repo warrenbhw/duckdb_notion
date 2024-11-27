@@ -84,3 +84,28 @@ After running these steps, you can install and load your extension using the reg
 INSTALL notion
 LOAD notion
 ```
+
+## Testing
+
+To run the tests:
+
+1. Copy `.env.test` to `.env` and fill in your test credentials:
+   ```bash
+   cp .env.test .env
+   ```
+
+2. Edit `.env` with your Notion test credentials:
+   - `NOTION_API_KEY`: A valid Notion API key
+   - `TEST_DATABASE_ID`: ID of a test database in your Notion workspace
+
+3. Run the tests:
+   ```bash
+   make test
+   ```
+
+Note: Tests require a Notion workspace with:
+- At least one database
+- Read access to the test database
+- The test database should have some data and various column types
+
+For CI/CD, you can set these environment variables directly in your CI platform's secrets management.
