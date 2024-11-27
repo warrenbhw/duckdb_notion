@@ -6,6 +6,7 @@ set(TARGET_NAME notion)
 # DuckDB's extension distribution supports vcpkg. As such, dependencies can be added in ./vcpkg.json and then
 # used in cmake with find_package. Feel free to remove or replace with other dependencies.
 find_package(OpenSSL REQUIRED)
+find_package(Catch2 REQUIRED)
 
 set(EXTENSION_NAME ${TARGET_NAME}_extension)
 set(LOADABLE_EXTENSION_NAME ${TARGET_NAME}_loadable_extension)
@@ -17,10 +18,7 @@ include_directories(third_party)
 # Extension sources
 set(EXTENSION_SOURCES 
     src/notion_extension.cpp
-    src/notion_auth.cpp
-    src/notion_copy.cpp
     src/notion_requests.cpp
-    src/notion_read.cpp
     src/notion_utils.cpp
 )
 
@@ -43,7 +41,7 @@ if (NOT CLANG_TIDY)
     # Test sources
     set(TEST_SOURCES
         test/notion_test.cpp
-        ${EXTENSION_SOURCES}  # Reuse extension sources
+        ${EXTENSION_SOURCES}
     )
 
     # Create test executable
@@ -54,6 +52,7 @@ if (NOT CLANG_TIDY)
         duckdb_static
         OpenSSL::SSL 
         OpenSSL::Crypto
+        Catch2::Catch2
         ${DUCKDB_TEST_LINK_EXTRA}
     )
 
