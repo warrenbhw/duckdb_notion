@@ -108,15 +108,15 @@ namespace duckdb
         // This is using the Web App OAuth flow, as I can't figure out desktop app flow.
         const std::string client_id = "793766532675-rehqgocfn88h0nl88322ht6d1i12kl4e.apps.googleusercontent.com";
         const std::string redirect_uri = "https://duckdb-notion.com/oauth";
-        const std::string auth_url = "https://accounts.google.com/o/oauth2/v2/auth";
+        const std::string auth_url = "https://api.notion.com/v1/oauth/authorize";
 
         // Generate a random state for CSRF protection
         std::string state = generate_random_string(10);
 
         std::string auth_request_url = auth_url + "?client_id=" + client_id +
                                        "&redirect_uri=" + redirect_uri +
-                                       "&response_type=token" +
-                                       "&scope=https://www.googleapis.com/auth/spreadsheets" +
+                                       "&response_type=code" +
+                                       "&owner=user" +
                                        "&state=" + state;
 
         // Instruct the user to visit the URL and grant permission
