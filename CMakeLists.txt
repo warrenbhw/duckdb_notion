@@ -6,7 +6,6 @@ set(TARGET_NAME notion)
 # DuckDB's extension distribution supports vcpkg. As such, dependencies can be added in ./vcpkg.json and then
 # used in cmake with find_package. Feel free to remove or replace with other dependencies.
 find_package(OpenSSL REQUIRED)
-find_package(Catch2 REQUIRED)
 
 set(EXTENSION_NAME ${TARGET_NAME}_extension)
 set(LOADABLE_EXTENSION_NAME ${TARGET_NAME}_loadable_extension)
@@ -20,6 +19,9 @@ set(EXTENSION_SOURCES
     src/notion_extension.cpp
     src/notion_requests.cpp
     src/notion_utils.cpp
+    src/notion_auth.cpp
+    # src/notion_copy.cpp
+    # src/notion_read.cpp
 )
 
 # Build extension
@@ -38,22 +40,24 @@ install(
 
 # Unit tests
 if (NOT CLANG_TIDY)
+    find_package(Catch2 3 REQUIRED)
+
     # Test sources
     set(TEST_SOURCES
+        test/test_main.cpp
         test/notion_test.cpp
         ${EXTENSION_SOURCES}
     )
 
     # Create test executable
-    add_executable(${TARGET_NAME}_test ${TEST_SOURCES})
+    add_executable(notion_test test/notion_test.cpp)
 
     # Link test dependencies
-    target_link_libraries(${TARGET_NAME}_test
+    target_link_libraries(notion_test PRIVATE
         duckdb_static
         OpenSSL::SSL 
         OpenSSL::Crypto
-        Catch2::Catch2
-        ${DUCKDB_TEST_LINK_EXTRA}
+        Catch2::Catch2WithMain
     )
 
     # Include directories for tests
@@ -62,7 +66,4 @@ if (NOT CLANG_TIDY)
         ${OPENSSL_INCLUDE_DIR}
         ${DUCKDB_INCLUDE_DIRS}
     )
-
-    # Add test to CTest
-    add_test(NAME ${TARGET_NAME}_test COMMAND ${TARGET_NAME}_test)
 endif()
