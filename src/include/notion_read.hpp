@@ -8,22 +8,21 @@
 namespace duckdb
 {
 
-    struct ReadSheetBindData : public TableFunctionData
+    struct ReadDatabaseBindData : public TableFunctionData
     {
-        string spreadsheet_id;
+        string database_id;
         string token;
         bool finished;
         idx_t row_index;
         string response;
         bool header;
-        string sheet_name;
 
-        ReadSheetBindData(string spreadsheet_id, string token, bool header, string sheet_name);
+        ReadDatabaseBindData(string database_id, string token, bool header);
     };
 
-    void ReadSheetFunction(ClientContext &context, TableFunctionInput &data_p, DataChunk &output);
+    // void ReadDatabaseFunction(ClientContext &context, TableFunctionInput &data_p, DataChunk &output);
 
-    unique_ptr<FunctionData> ReadSheetBind(ClientContext &context, TableFunctionBindInput &input,
-                                           vector<LogicalType> &return_types, vector<string> &names);
+    // unique_ptr<FunctionData> ReadDatabaseBind(ClientContext &context, TableFunctionBindInput &input,
+    //                                           vector<LogicalType> &return_types, vector<string> &names);
 
 } // namespace duckdb
