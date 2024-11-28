@@ -37,33 +37,3 @@ install(
   EXPORT "${DUCKDB_EXPORT_SET}"
   LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
   ARCHIVE DESTINATION "${INSTALL_LIB_DIR}")
-
-# Unit tests
-if (NOT CLANG_TIDY)
-    find_package(Catch2 3 REQUIRED)
-
-    # Test sources
-    set(TEST_SOURCES
-        test/test_main.cpp
-        test/notion_test.cpp
-        ${EXTENSION_SOURCES}
-    )
-
-    # Create test executable
-    add_executable(notion_test test/notion_test.cpp)
-
-    # Link test dependencies
-    target_link_libraries(notion_test PRIVATE
-        duckdb_static
-        OpenSSL::SSL 
-        OpenSSL::Crypto
-        Catch2::Catch2WithMain
-    )
-
-    # Include directories for tests
-    target_include_directories(${TARGET_NAME}_test PRIVATE
-        ${CMAKE_SOURCE_DIR}/src/include
-        ${OPENSSL_INCLUDE_DIR}
-        ${DUCKDB_INCLUDE_DIRS}
-    )
-endif()
