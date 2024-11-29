@@ -9,3 +9,4 @@ test/python/__pycache__/
 .Rhistory
 .env
 .config.env
+*.env
