@@ -34,7 +34,7 @@ namespace duckdb
         OpenSSL_add_all_algorithms();
 
         // Register read_notion table function
-        // TableFunction read_notion_function("read_notion", {LogicalType::VARCHAR}, NotionReadFunction, NotionBindFunction);
+        auto read_notion_function = TableFunction("read_notion", {LogicalType::VARCHAR}, NotionReadFunction, NotionBindFunction);
         // ExtensionUtil::RegisterFunction(instance, read_notion_function);
 
         // // Register COPY TO (FORMAT 'gsheet') function

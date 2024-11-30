@@ -8,16 +8,9 @@
 namespace duckdb
 {
 
-    struct ReadDatabaseBindData : public TableFunctionData
+    struct NotionReadFunctionData : public TableFunctionData
     {
         string database_id;
-        string token;
-        bool finished;
-        idx_t row_index;
-        string response;
-        bool header;
-
-        ReadDatabaseBindData(string database_id, string token, bool header);
     };
 
     void NotionReadFunction(ClientContext &context, TableFunctionInput &data_p, DataChunk &output);
