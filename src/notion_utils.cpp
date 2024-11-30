@@ -58,7 +58,7 @@ namespace duckdb
         throw duckdb::InvalidInputException("Invalid Google Sheets URL or ID");
     }
 
-    json parseJson(const std::string &json_str)
+    json parse_json(const std::string &json_str)
     {
         try
         {

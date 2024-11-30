@@ -107,7 +107,7 @@ namespace duckdb
 
         // Get the database schema
         std::string database_metadata = get_database(token, database_id);
-        auto database_metadata_json = json::parse(database_metadata);
+        auto database_metadata_json = parse_json(database_metadata);
         auto properties = database_metadata_json["properties"];
         for (const auto &property : properties.items())
         {

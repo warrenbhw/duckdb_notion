@@ -49,7 +49,7 @@ namespace duckdb
      * @param json_str The JSON string
      * @return The parsed json object
      */
-    json parseJson(const std::string &json_str);
+    json parse_json(const std::string &json_str);
 
     /**
      * Generates a random string of specified length using alphanumeric characters.
