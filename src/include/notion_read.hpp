@@ -11,6 +11,8 @@ namespace duckdb
     struct NotionReadFunctionData : public TableFunctionData
     {
         string database_id;
+
+        explicit NotionReadFunctionData(std::string database_id_p) : database_id(std::move(database_id_p)) {}
     };
 
     void NotionReadFunction(ClientContext &context, TableFunctionInput &data_p, DataChunk &output);

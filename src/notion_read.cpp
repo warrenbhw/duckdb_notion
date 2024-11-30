@@ -42,6 +42,7 @@ namespace duckdb
         }
 
         std::string token = token_value.ToString();
+        return token;
     }
 
     // TODO
@@ -62,9 +63,9 @@ namespace duckdb
         std::string database_id = extract_database_id(database_input);
         std::string token = GetNotionToken(context);
 
-        // Now fetch the metadata for the database, and use that to determine the columns
+        // TODO: Now fetch the metadata for the database, and use that to determine the columns
 
-        auto bind_data = make_uniq<NotionReadFunctionData>(database_id, token);
+        auto bind_data = make_uniq<NotionReadFunctionData>(database_id);
         return bind_data;
     }
 } // namespace duckdb
