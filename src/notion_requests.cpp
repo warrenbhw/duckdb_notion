@@ -12,40 +12,6 @@ namespace duckdb
     const std::string NOTION_API_HOST = "api.notion.com";
     const std::string NOTION_API_VERSION = "2022-06-28";
 
-    // Add helper function to parse Notion property types
-    NotionPropertyType ParseNotionPropertyType(const std::string &type)
-    {
-        if (type == "title" || type == "rich_text")
-        {
-            return NotionPropertyType::TEXT;
-        }
-        else if (type == "number")
-        {
-            return NotionPropertyType::NUMBER;
-        }
-        else if (type == "date")
-        {
-            return NotionPropertyType::DATE;
-        }
-        else if (type == "checkbox")
-        {
-            return NotionPropertyType::CHECKBOX;
-        }
-        else if (type == "select")
-        {
-            return NotionPropertyType::SELECT;
-        }
-        else if (type == "multi_select")
-        {
-            return NotionPropertyType::MULTI_SELECT;
-        }
-        else if (type == "relation")
-        {
-            return NotionPropertyType::RELATION;
-        }
-        return NotionPropertyType::TEXT; // Default to text for unknown types
-    }
-
     std::string perform_https_request(const std::string &host, const std::string &path, const std::string &token,
                                       HttpMethod method, const std::string &body, const std::string &content_type = "application/json")
     {
@@ -142,191 +108,190 @@ namespace duckdb
         return perform_https_request(NOTION_API_HOST, path, token, method, body);
     }
 
-    std::string list_databases(const std::string &token)
-    {
-        nlohmann::json initial_body = {
-            {"filter", {{"value", "database"}, {"property", "object"}}}};
-
-        return collect_paginated_results([&](const std::string &cursor)
-                                         {
-            nlohmann::json request_body = initial_body;
-            if (!cursor.empty()) {
-                request_body["start_cursor"] = cursor;
-            }
-            return call_notion_api(token, HttpMethod::POST, "/v1/search", request_body.dump()); });
-    }
-
-    // This gets the schema of the database
     std::string get_database(const std::string &token, const std::string &database_id)
     {
         return call_notion_api(token, HttpMethod::GET, "/v1/databases/" + database_id, "");
     }
 
-    // TODO: pagination, maybe filter if needed
-    std::string query_database(const std::string &token, const std::string &database_id)
-    {
-        return call_notion_api(token, HttpMethod::POST, "/v1/databases/" + database_id + "/query", "{}");
-    }
+    // std::string list_databases(const std::string &token)
+    // {
+    //     nlohmann::json initial_body = {
+    //         {"filter", {{"value", "database"}, {"property", "object"}}}};
 
-    // TODO: update database - CRUD on database rows
-    std::string create_page(const std::string &token, const std::string &database_id, const std::string &body)
-    {
-        return call_notion_api(token, HttpMethod::POST, "/v1/databases/" + database_id + "/query", body);
-    }
+    //     return collect_paginated_results([&](const std::string &cursor)
+    //                                      {
+    //         nlohmann::json request_body = initial_body;
+    //         if (!cursor.empty()) {
+    //             request_body["start_cursor"] = cursor;
+    //         }
+    //         return call_notion_api(token, HttpMethod::POST, "/v1/search", request_body.dump()); });
+    // }
 
-    std::string update_page_properties(const std::string &token, const std::string &page_id, const std::string &body)
-    {
-        return call_notion_api(token, HttpMethod::PATCH, "/v1/pages/" + page_id, body);
-    }
+    // // TODO: pagination, maybe filter if needed
+    // std::string query_database(const std::string &token, const std::string &database_id)
+    // {
+    //     return call_notion_api(token, HttpMethod::POST, "/v1/databases/" + database_id + "/query", "{}");
+    // }
 
-    std::string delete_page(const std::string &token, const std::string &page_id)
-    {
-        return call_notion_api(token, HttpMethod::DELETE, "/v1/pages/" + page_id, "");
-    }
+    // // TODO: update database - CRUD on database rows
+    // std::string create_page(const std::string &token, const std::string &database_id, const std::string &body)
+    // {
+    //     return call_notion_api(token, HttpMethod::POST, "/v1/databases/" + database_id + "/query", body);
+    // }
+
+    // std::string update_page_properties(const std::string &token, const std::string &page_id, const std::string &body)
+    // {
+    //     return call_notion_api(token, HttpMethod::PATCH, "/v1/pages/" + page_id, body);
+    // }
+
+    // std::string delete_page(const std::string &token, const std::string &page_id)
+    // {
+    //     return call_notion_api(token, HttpMethod::DELETE, "/v1/pages/" + page_id, "");
+    // }
 
     // TODO: create and delete databases?
 
-    // Add function to extract property value from Notion response
-    Value ExtractPropertyValue(const nlohmann::json &property, NotionPropertyType type)
-    {
-        switch (type)
-        {
-        case NotionPropertyType::TEXT:
-        {
-            if (property.contains("title"))
-            {
-                auto &title = property["title"];
-                if (!title.empty() && title.contains("plain_text"))
-                {
-                    return Value(title["plain_text"].get<std::string>());
-                }
-            }
-            else if (property.contains("rich_text"))
-            {
-                auto &text = property["rich_text"];
-                if (!text.empty() && text.contains("plain_text"))
-                {
-                    return Value(text["plain_text"].get<std::string>());
-                }
-            }
-            return Value();
-        }
-        case NotionPropertyType::NUMBER:
-            return property.contains("number") ? Value(property["number"].get<double>()) : Value();
-        case NotionPropertyType::DATE:
-        {
-            if (property.contains("date") && property["date"].contains("start"))
-            {
-                // Parse ISO 8601 date string
-                std::string date_str = property["date"]["start"].get<std::string>();
-                try
-                {
-                    return Value::TIMESTAMP(Timestamp::FromString(date_str));
-                }
-                catch (...)
-                {
-                    return Value();
-                }
-            }
-            return Value();
-        }
-        case NotionPropertyType::CHECKBOX:
-            return property.contains("checkbox") ? Value::BOOLEAN(property["checkbox"].get<bool>()) : Value();
-        // Add other property type handling...
-        default:
-            return Value();
-        }
-    }
+    // // Add function to extract property value from Notion response
+    // Value ExtractPropertyValue(const nlohmann::json &property, NotionPropertyType type)
+    // {
+    //     switch (type)
+    //     {
+    //     case NotionPropertyType::TEXT:
+    //     {
+    //         if (property.contains("title"))
+    //         {
+    //             auto &title = property["title"];
+    //             if (!title.empty() && title.contains("plain_text"))
+    //             {
+    //                 return Value(title["plain_text"].get<std::string>());
+    //             }
+    //         }
+    //         else if (property.contains("rich_text"))
+    //         {
+    //             auto &text = property["rich_text"];
+    //             if (!text.empty() && text.contains("plain_text"))
+    //             {
+    //                 return Value(text["plain_text"].get<std::string>());
+    //             }
+    //         }
+    //         return Value();
+    //     }
+    //     case NotionPropertyType::NUMBER:
+    //         return property.contains("number") ? Value(property["number"].get<double>()) : Value();
+    //     case NotionPropertyType::DATE:
+    //     {
+    //         if (property.contains("date") && property["date"].contains("start"))
+    //         {
+    //             // Parse ISO 8601 date string
+    //             std::string date_str = property["date"]["start"].get<std::string>();
+    //             try
+    //             {
+    //                 return Value::TIMESTAMP(Timestamp::FromString(date_str));
+    //             }
+    //             catch (...)
+    //             {
+    //                 return Value();
+    //             }
+    //         }
+    //         return Value();
+    //     }
+    //     case NotionPropertyType::CHECKBOX:
+    //         return property.contains("checkbox") ? Value::BOOLEAN(property["checkbox"].get<bool>()) : Value();
+    //     // Add other property type handling...
+    //     default:
+    //         return Value();
+    //     }
+    // }
 
-    std::vector<NotionProperty> GetDatabaseSchema(const std::string &token, const std::string &database_id)
-    {
-        auto response = get_database(token, database_id);
+    // std::vector<NotionProperty> GetDatabaseSchema(const std::string &token, const std::string &database_id)
+    // {
+    //     auto response = get_database(token, database_id);
 
-        nlohmann::json d;
-        d = nlohmann::json::parse(response);
+    //     nlohmann::json d;
+    //     d = nlohmann::json::parse(response);
 
-        if (d.contains("error") || !d.contains("properties"))
-        {
-            throw IOException("Failed to parse Notion database schema");
-        }
+    //     if (d.contains("error") || !d.contains("properties"))
+    //     {
+    //         throw IOException("Failed to parse Notion database schema");
+    //     }
 
-        std::vector<NotionProperty> properties;
-        auto &props = d["properties"];
+    //     std::vector<NotionProperty> properties;
+    //     auto &props = d["properties"];
 
-        for (auto &m : props.items())
-        {
-            NotionProperty property;
-            property.name = m.key();
-            property.type = ParseNotionPropertyType(m.value()["type"].get<std::string>());
-            properties.push_back(property);
-        }
+    //     for (auto &m : props.items())
+    //     {
+    //         NotionProperty property;
+    //         property.name = m.key();
+    //         property.type = ParseNotionPropertyType(m.value()["type"].get<std::string>());
+    //         properties.push_back(property);
+    //     }
 
-        return properties;
-    }
+    //     return properties;
+    // }
 
-    std::vector<std::vector<Value>> QueryDatabaseRows(const std::string &token, const std::string &database_id,
-                                                      const std::vector<NotionProperty> &properties)
-    {
-        auto response = query_database(token, database_id);
+    // std::vector<std::vector<Value>> QueryDatabaseRows(const std::string &token, const std::string &database_id,
+    //                                                   const std::vector<NotionProperty> &properties)
+    // {
+    //     auto response = query_database(token, database_id);
 
-        nlohmann::json d;
-        d = nlohmann::json::parse(response);
+    //     nlohmann::json d;
+    //     d = nlohmann::json::parse(response);
 
-        if (d.contains("error") || !d.contains("results"))
-        {
-            throw IOException("Failed to parse Notion database query results");
-        }
+    //     if (d.contains("error") || !d.contains("results"))
+    //     {
+    //         throw IOException("Failed to parse Notion database query results");
+    //     }
 
-        std::vector<std::vector<Value>> rows;
-        auto &results = d["results"];
+    //     std::vector<std::vector<Value>> rows;
+    //     auto &results = d["results"];
 
-        for (auto &page : results)
-        {
-            std::vector<Value> row;
-            auto &props = page["properties"];
+    //     for (auto &page : results)
+    //     {
+    //         std::vector<Value> row;
+    //         auto &props = page["properties"];
 
-            for (const auto &prop : properties)
-            {
-                if (props.contains(prop.name))
-                {
-                    row.push_back(ExtractPropertyValue(props[prop.name], prop.type));
-                }
-                else
-                {
-                    row.push_back(Value());
-                }
-            }
+    //         for (const auto &prop : properties)
+    //         {
+    //             if (props.contains(prop.name))
+    //             {
+    //                 row.push_back(ExtractPropertyValue(props[prop.name], prop.type));
+    //             }
+    //             else
+    //             {
+    //                 row.push_back(Value());
+    //             }
+    //         }
 
-            rows.push_back(std::move(row));
-        }
+    //         rows.push_back(std::move(row));
+    //     }
 
-        return rows;
-    }
+    //     return rows;
+    // }
 
-    // Update create_page to handle property types correctly
-    std::string create_page(const std::string &token, const std::string &database_id,
-                            const std::vector<std::pair<NotionProperty, Value>> &properties)
-    {
-        nlohmann::json d = nlohmann::json::object();
+    // // Update create_page to handle property types correctly
+    // std::string create_page(const std::string &token, const std::string &database_id,
+    //                         const std::vector<std::pair<NotionProperty, Value>> &properties)
+    // {
+    //     nlohmann::json d = nlohmann::json::object();
 
-        // Set parent database
-        nlohmann::json parent(nlohmann::json::object());
-        parent["database_id"] = database_id;
-        d["parent"] = parent;
+    //     // Set parent database
+    //     nlohmann::json parent(nlohmann::json::object());
+    //     parent["database_id"] = database_id;
+    //     d["parent"] = parent;
 
-        // Add properties
-        nlohmann::json props(nlohmann::json::object());
-        for (const auto &prop : properties)
-        {
-            nlohmann::json prop_obj(nlohmann::json::object());
-            // Convert DuckDB Value to Notion property format based on type
-            // ... implement property conversion ...
-            props[prop.first.name] = prop_obj;
-        }
-        d["properties"] = props;
+    //     // Add properties
+    //     nlohmann::json props(nlohmann::json::object());
+    //     for (const auto &prop : properties)
+    //     {
+    //         nlohmann::json prop_obj(nlohmann::json::object());
+    //         // Convert DuckDB Value to Notion property format based on type
+    //         // ... implement property conversion ...
+    //         props[prop.first.name] = prop_obj;
+    //     }
+    //     d["properties"] = props;
 
-        std::string buffer = d.dump();
+    //     std::string buffer = d.dump();
 
-        return call_notion_api(token, HttpMethod::POST, "/v1/pages", buffer);
-    }
+    //     return call_notion_api(token, HttpMethod::POST, "/v1/pages", buffer);
+    // }
 }

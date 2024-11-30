@@ -104,22 +104,20 @@ namespace duckdb
         std::string database_id = extract_database_id(database_input);
         std::string token = get_notion_token(context);
 
-        // TODO: Now fetch the metadata for the database, and use that to determine the columns
+        // Get the database schema
         std::string database_metadata = get_database(token, database_id);
         auto database_metadata_json = json::parse(database_metadata);
         auto properties = database_metadata_json["properties"];
         for (const auto &property : properties.items())
         {
-            std::string property_name = property.key();
-            std::string property_id = property.value()["id"];
-            std::string property_type = property.value()["type"];
+            std::string name = property.key();
+            std::string type = property.value()["type"];
 
-            names.push_back(property_name);
-            return_types.push_back(notion_type_to_duckdb_type(property_type));
-
-            // TODO: Add the property to the columns
+            names.push_back(name);
+            return_types.push_back(notion_type_to_duckdb_type(type));
         }
 
+        // Create the bind data
         auto bind_data = make_uniq<NotionReadFunctionData>(database_id);
         return bind_data;
     }
