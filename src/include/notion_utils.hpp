@@ -10,6 +10,32 @@ using json = nlohmann::json;
 
 namespace duckdb
 {
+
+    // https://developers.notion.com/reference/property-object
+    // enum class NotionPropertyType
+    // {
+    //     CHECKBOX,
+    //     CREATED_BY,
+    //     CREATED_TIME,
+    //     DATE,
+    //     EMAIL,
+    //     FILES,
+    //     FORMULA,
+    //     LAST_EDITED_BY,
+    //     LAST_EDITED_TIME,
+    //     MULTI_SELECT,
+    //     NUMBER,
+    //     PEOPLE,
+    //     PHONE_NUMBER,
+    //     RELATION,
+    //     RICH_TEXT,
+    //     ROLLUP,
+    //     SELECT,
+    //     STATUS,
+    //     TITLE,
+    //     URL,
+    // };
+
     /**
      * Extracts the database ID from a Notion URL or returns the input if it's already a database ID.
      * @param input A Notion URL or database ID

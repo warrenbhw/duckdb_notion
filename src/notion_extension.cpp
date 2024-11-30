@@ -34,7 +34,7 @@ namespace duckdb
         OpenSSL_add_all_algorithms();
 
         // Register read_notion table function
-        auto read_notion_function = TableFunction("read_notion", {LogicalType::VARCHAR}, NotionReadFunction, NotionBindFunction);
+        auto read_notion_function = TableFunction("read_notion", {LogicalType::VARCHAR}, notion_read_function, notion_bind_function);
         ExtensionUtil::RegisterFunction(instance, read_notion_function);
 
         // // Register COPY TO (FORMAT 'gsheet') function
@@ -66,81 +66,6 @@ namespace duckdb
         return "";
 #endif
     }
-
-    // struct NotionConnectionData
-    // {
-    //     string api_key;
-
-    //     explicit NotionConnectionData(string api_key_p) : api_key(std::move(api_key_p)) {}
-    // };
-
-    // static NotionConnectionData *GetConnectionData(ClientContext &context)
-    // {
-    //     // auto api_key = GetNotionApiKey(context);
-    //     string api_key = "your_key";
-    //     if (!api_key.empty())
-    //     {
-    //         return new NotionConnectionData(api_key);
-    //     }
-    //     throw InvalidInputException("Notion API key not configured. Use SET notion_api_key='your_key';");
-    // }
-
-    // Table function to query Notion databases
-    // struct NotionDatabaseScanData : public TableFunctionData
-    // {
-    //     string database_id;
-    //     vector<NotionProperty> properties;
-    //     string api_key;
-
-    //     NotionDatabaseScanData(string database_id_p, vector<NotionProperty> properties_p, string api_key_p)
-    //         : database_id(std::move(database_id_p)), properties(std::move(properties_p)),
-    //           api_key(std::move(api_key_p)) {}
-    // };
-
-    // static unique_ptr<FunctionData> NotionDatabaseBind(ClientContext &context,
-    //                                                    TableFunctionBindInput &input,
-    //                                                    vector<LogicalType> &return_types,
-    //                                                    vector<string> &names)
-    // {
-    //     auto database_id = StringValue::Get(input.inputs[0]);
-    //     auto conn_data = unique_ptr<NotionConnectionData>(GetConnectionData(context));
-
-    //     // Get database schema using notion_requests
-    //     auto properties = GetDatabaseSchema(conn_data->api_key, database_id);
-
-    //     // Set up return types based on property types
-    //     for (auto &prop : properties)
-    //     {
-    //         names.push_back(prop.name);
-    //         switch (prop.type)
-    //         {
-    //         case NotionPropertyType::TEXT:
-    //             return_types.push_back(LogicalType::VARCHAR);
-    //             break;
-    //         case NotionPropertyType::NUMBER:
-    //             return_types.push_back(LogicalType::DOUBLE);
-    //             break;
-    //         case NotionPropertyType::DATE:
-    //             return_types.push_back(LogicalType::TIMESTAMP);
-    //             break;
-    //         case NotionPropertyType::CHECKBOX:
-    //             return_types.push_back(LogicalType::BOOLEAN);
-    //             break;
-    //         case NotionPropertyType::SELECT:
-    //         case NotionPropertyType::MULTI_SELECT:
-    //             return_types.push_back(LogicalType::VARCHAR);
-    //             break;
-    //         case NotionPropertyType::RELATION:
-    //             return_types.push_back(LogicalType::VARCHAR);
-    //             break;
-    //         default:
-    //             return_types.push_back(LogicalType::VARCHAR);
-    //             break;
-    //         }
-    //     }
-
-    //     return make_uniq<NotionDatabaseScanData>(database_id, properties, conn_data->api_key);
-    // }
 
 } // namespace duckdb
 
