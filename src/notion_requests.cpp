@@ -10,39 +10,51 @@
 
 namespace duckdb
 {
-    const std::string NOTION_API_HOST = "api.notion.com";
-    const std::string NOTION_API_VERSION = "2022-02-22";
+    const std::string API_HOST = "api.notion.com";
+    const std::string API_VERSION = "2022-02-22";
+    const std::string CONTENT_TYPE = "application/json";
 
-    std::string perform_https_request(const std::string &host, const std::string &path, const std::string &token,
-                                      HttpMethod method, const std::string &body, const std::string &content_type = "application/json")
+    std::string call_notion_api(const std::string &token,
+                                HttpMethod method, const std::string &path, const std::string &body)
     {
-        std::cout << "Performing HTTPS request to: " << host << path << std::endl;
-        std::cout << "Token: " << token << std::endl;
-        std::cout << "Body: " << body << std::endl;
-        std::cout << "Content type: " << content_type << std::endl;
-        // std::cout << "Method: " << method << std::endl;
-
         std::string response;
+
+        // Initialize OpenSSL
         SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
         if (!ctx)
         {
             throw duckdb::IOException("Failed to create SSL context");
         }
 
+        // Set up BIO chain for SSL connection
         BIO *bio = BIO_new_ssl_connect(ctx);
+        if (!bio)
+        {
+            SSL_CTX_free(ctx);
+            throw duckdb::IOException("Failed to create BIO");
+        }
+
         SSL *ssl;
         BIO_get_ssl(bio, &ssl);
         SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
 
-        BIO_set_conn_hostname(bio, (host + ":443").c_str());
+        // Set hostname with port
+        std::string host_with_port = API_HOST + ":443";
+        BIO_set_conn_hostname(bio, host_with_port.c_str());
 
-        if (BIO_do_connect(bio) <= 0)
+        // Set SNI hostname
+        SSL_set_tlsext_host_name(ssl, API_HOST.c_str());
+
+        // Perform connection
+        if (BIO_do_connect(bio) <= 0 || BIO_do_handshake(bio) <= 0)
         {
             BIO_free_all(bio);
             SSL_CTX_free(ctx);
-            throw duckdb::IOException("Failed to connect");
+            throw duckdb::IOException("Failed to establish SSL connection: " +
+                                      std::string(ERR_error_string(ERR_get_error(), nullptr)));
         }
 
+        // Rest of the function remains the same...
         std::string method_str;
         switch (method)
         {
@@ -63,26 +75,25 @@ namespace duckdb
             break;
         }
 
-        std::string request = method_str + " " + path + " HTTP/1.0\r\n";
-        request += "Host: " + host + "\r\n";
+        // Build request
+        std::string request = method_str + " " + path + " HTTP/1.1\r\n"; // Changed to 1.1
+        request += "Host: " + API_HOST + "\r\n";
         request += "Authorization: Bearer " + token + "\r\n";
-        request += "Connection: close\r\n";
+        request += "Notion-Version: " + API_VERSION + "\r\n";
 
         if (!body.empty())
         {
-            request += "Content-Type: " + content_type + "\r\n";
+            request += "Content-Type: " + CONTENT_TYPE + "\r\n";
             request += "Content-Length: " + std::to_string(body.length()) + "\r\n";
         }
-
-        request += "Notion-Version: " + NOTION_API_VERSION + "\r\n";
-
+        request += "Connection: close\r\n";
         request += "\r\n";
-
         if (!body.empty())
         {
             request += body;
         }
 
+        // Send request
         if (BIO_write(bio, request.c_str(), request.length()) <= 0)
         {
             BIO_free_all(bio);
@@ -90,13 +101,15 @@ namespace duckdb
             throw duckdb::IOException("Failed to write request");
         }
 
-        char buffer[1024];
+        // Read response
+        char buffer[4096];
         int len;
         while ((len = BIO_read(bio, buffer, sizeof(buffer))) > 0)
         {
             response.append(buffer, len);
         }
 
+        // Clean up
         BIO_free_all(bio);
         SSL_CTX_free(ctx);
 
@@ -108,11 +121,6 @@ namespace duckdb
         }
 
         return response;
-    }
-
-    std::string call_notion_api(const std::string &token, HttpMethod method, const std::string &path, const std::string &body)
-    {
-        return perform_https_request(NOTION_API_HOST, path, token, method, body);
     }
 
     std::string get_database(const std::string &token, const std::string &database_id)
