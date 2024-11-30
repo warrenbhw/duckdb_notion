@@ -35,7 +35,7 @@ namespace duckdb
 
         // Register read_notion table function
         auto read_notion_function = TableFunction("read_notion", {LogicalType::VARCHAR}, NotionReadFunction, NotionBindFunction);
-        // ExtensionUtil::RegisterFunction(instance, read_notion_function);
+        ExtensionUtil::RegisterFunction(instance, read_notion_function);
 
         // // Register COPY TO (FORMAT 'gsheet') function
         // GSheetCopyFunction gsheet_copy_function;
