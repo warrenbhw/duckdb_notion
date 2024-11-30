@@ -148,10 +148,10 @@ namespace duckdb
     // }
 
     // // TODO: pagination, maybe filter if needed
-    // std::string query_database(const std::string &token, const std::string &database_id)
-    // {
-    //     return call_notion_api(token, HttpMethod::POST, "/v1/databases/" + database_id + "/query", "{}");
-    // }
+    std::string query_database(const std::string &token, const std::string &database_id)
+    {
+        return call_notion_api(token, HttpMethod::POST, "/v1/databases/" + database_id + "/query", "{}");
+    }
 
     // // TODO: update database - CRUD on database rows
     // std::string create_page(const std::string &token, const std::string &database_id, const std::string &body)
