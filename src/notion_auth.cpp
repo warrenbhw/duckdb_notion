@@ -106,7 +106,7 @@ namespace duckdb
     std::string InitiateOAuthFlow()
     {
         // This is using the Web App OAuth flow, as I can't figure out desktop app flow.
-        const std::string client_id = "793766532675-rehqgocfn88h0nl88322ht6d1i12kl4e.apps.googleusercontent.com";
+        const std::string client_id = "14ed872b-594c-805b-ace4-0037cce1cc3e";
         const std::string redirect_uri = "https://duckdb-notion.com/oauth";
         const std::string auth_url = "https://api.notion.com/v1/oauth/authorize";
 

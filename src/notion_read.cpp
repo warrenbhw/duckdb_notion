@@ -17,4 +17,24 @@ namespace duckdb
         // response = call_notion_api(token, HttpMethod::GET, "/v1/databases/" + database_id, "");
         response = "";
     }
+
+    void NotionReadFunction(ClientContext &context, TableFunctionInput &data_p, DataChunk &output)
+    {
+        // TODO
+        auto &bind_data = const_cast<ReadDatabaseBindData &>(data_p.bind_data->Cast<ReadDatabaseBindData>());
+
+        if (bind_data.finished)
+        {
+            return;
+        }
+
+        // json cleanJson = parseJson(bind_data.response);
+        // DatabaseData database_data = getDatabaseData(cleanJson);
+    }
+
+    unique_ptr<FunctionData> NotionBindFunction(ClientContext &context, TableFunctionBindInput &input,
+                                                vector<LogicalType> &return_types, vector<string> &names)
+    {
+        // TODO
+    }
 } // namespace duckdb

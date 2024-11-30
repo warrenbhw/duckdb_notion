@@ -20,8 +20,8 @@ set(EXTENSION_SOURCES
     src/notion_requests.cpp
     src/notion_utils.cpp
     src/notion_auth.cpp
+    src/notion_read.cpp
     # src/notion_copy.cpp
-    # src/notion_read.cpp
 )
 
 # Build extension

@@ -20,9 +20,8 @@ namespace duckdb
         ReadDatabaseBindData(string database_id, string token, bool header);
     };
 
-    // void ReadDatabaseFunction(ClientContext &context, TableFunctionInput &data_p, DataChunk &output);
+    void NotionReadFunction(ClientContext &context, TableFunctionInput &data_p, DataChunk &output);
 
-    // unique_ptr<FunctionData> ReadDatabaseBind(ClientContext &context, TableFunctionBindInput &input,
-    //                                           vector<LogicalType> &return_types, vector<string> &names);
-
+    unique_ptr<FunctionData> NotionBindFunction(ClientContext &context, TableFunctionBindInput &input,
+                                                vector<LogicalType> &return_types, vector<string> &names);
 } // namespace duckdb

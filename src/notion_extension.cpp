@@ -20,8 +20,8 @@
 // Notion extension
 #include "notion_extension.hpp"
 #include "notion_auth.hpp"
+#include "notion_read.hpp"
 // #include "notion_copy.hpp"
-// #include "notion_read.hpp"
 
 namespace duckdb
 {
@@ -33,11 +33,9 @@ namespace duckdb
         SSL_load_error_strings();
         OpenSSL_add_all_algorithms();
 
-        // Register read_gsheet table function
-        // TableFunction read_gsheet_function("read_gsheet", {LogicalType::VARCHAR}, ReadSheetFunction, ReadSheetBind);
-        // read_gsheet_function.named_parameters["header"] = LogicalType::BOOLEAN;
-        // read_gsheet_function.named_parameters["sheet"] = LogicalType::VARCHAR;
-        // ExtensionUtil::RegisterFunction(instance, read_gsheet_function);
+        // Register read_notion table function
+        // TableFunction read_notion_function("read_notion", {LogicalType::VARCHAR}, NotionReadFunction, NotionBindFunction);
+        // ExtensionUtil::RegisterFunction(instance, read_notion_function);
 
         // // Register COPY TO (FORMAT 'gsheet') function
         // GSheetCopyFunction gsheet_copy_function;
