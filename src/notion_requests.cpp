@@ -6,15 +6,22 @@
 #include <json.hpp>
 #include "notion_utils.hpp"
 #include "duckdb/common/types/value.hpp"
+#include <iostream>
 
 namespace duckdb
 {
     const std::string NOTION_API_HOST = "api.notion.com";
-    const std::string NOTION_API_VERSION = "2022-06-28";
+    const std::string NOTION_API_VERSION = "2022-02-22";
 
     std::string perform_https_request(const std::string &host, const std::string &path, const std::string &token,
                                       HttpMethod method, const std::string &body, const std::string &content_type = "application/json")
     {
+        std::cout << "Performing HTTPS request to: " << host << path << std::endl;
+        std::cout << "Token: " << token << std::endl;
+        std::cout << "Body: " << body << std::endl;
+        std::cout << "Content type: " << content_type << std::endl;
+        // std::cout << "Method: " << method << std::endl;
+
         std::string response;
         SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
         if (!ctx)
@@ -110,7 +117,12 @@ namespace duckdb
 
     std::string get_database(const std::string &token, const std::string &database_id)
     {
-        return call_notion_api(token, HttpMethod::GET, "/v1/databases/" + database_id, "");
+        std::cout << "Getting database: " << database_id << std::endl;
+        std::cout << "Token: " << token << std::endl;
+
+        auto response = call_notion_api(token, HttpMethod::GET, "/v1/databases/" + database_id, "");
+        std::cout << "Response: " << response << std::endl;
+        return response;
     }
 
     // std::string list_databases(const std::string &token)
