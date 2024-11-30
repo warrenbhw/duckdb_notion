@@ -91,7 +91,7 @@
 //         std::string response = call_sheets_api(spreadsheet_id, token, encoded_sheet_name, HttpMethod::POST, request_body);
 
 //         // Check for errors in the response
-//         json response_json = parseJson(response);
+//         json response_json = parse_json(response);
 //         if (response_json.contains("error"))
 //         {
 //             throw duckdb::IOException("Error writing to Google Sheet: " + response_json["error"]["message"].get<std::string>());
@@ -152,7 +152,7 @@
 //         std::string response = call_sheets_api(gstate.spreadsheet_id, gstate.token, encoded_sheet_name, HttpMethod::POST, request_body);
 
 //         // Check for errors in the response
-//         json response_json = parseJson(response);
+//         json response_json = parse_json(response);
 //         if (response_json.contains("error"))
 //         {
 //             throw duckdb::IOException("Error writing to Google Sheet: " + response_json["error"]["message"].get<std::string>());
