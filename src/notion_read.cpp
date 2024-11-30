@@ -94,6 +94,7 @@ namespace duckdb
         std::string token = get_notion_token(context);
 
         // TODO
+        output.SetCardinality(0);
     }
 
     // TODO
