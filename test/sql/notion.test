@@ -15,4 +15,4 @@ create secret test_secret (
 
 # Test database query
 statement ok
-from notion_scan_database('1499ce5d31c980249613ee3558225560');
+from read_notion('1499ce5d31c980249613ee3558225560');
