@@ -12,29 +12,43 @@ namespace duckdb
 {
 
     // https://developers.notion.com/reference/property-object
-    // enum class NotionPropertyType
-    // {
-    //     CHECKBOX,
-    //     CREATED_BY,
-    //     CREATED_TIME,
-    //     DATE,
-    //     EMAIL,
-    //     FILES,
-    //     FORMULA,
-    //     LAST_EDITED_BY,
-    //     LAST_EDITED_TIME,
-    //     MULTI_SELECT,
-    //     NUMBER,
-    //     PEOPLE,
-    //     PHONE_NUMBER,
-    //     RELATION,
-    //     RICH_TEXT,
-    //     ROLLUP,
-    //     SELECT,
-    //     STATUS,
-    //     TITLE,
-    //     URL,
-    // };
+    enum class NotionPropertyType
+    {
+        CHECKBOX,
+        CREATED_BY,
+        CREATED_TIME,
+        DATE,
+        EMAIL,
+        FILES,
+        FORMULA,
+        LAST_EDITED_BY,
+        LAST_EDITED_TIME,
+        MULTI_SELECT,
+        NUMBER,
+        PEOPLE,
+        PHONE_NUMBER,
+        RELATION,
+        RICH_TEXT,
+        ROLLUP,
+        SELECT,
+        STATUS,
+        TITLE,
+        URL,
+    };
+
+    struct NotionProperty
+    {
+        std::string id;
+        std::string name;
+        NotionPropertyType type;
+    };
+
+    struct NotionPropertyItem
+    {
+        std::string id;
+        std::string name;
+        std::string type;
+    };
 
     /**
      * Extracts the database ID from a Notion URL or returns the input if it's already a database ID.

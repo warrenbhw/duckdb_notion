@@ -93,11 +93,92 @@ namespace duckdb
         std::string database_id = bind_data.database_id;
         std::string token = get_notion_token(context);
 
-        // TODO
-        output.SetCardinality(0);
+        // Query the database
+        std::string response = query_database(token, database_id);
+        auto json_response = parse_json(response);
+
+        if (!json_response.contains("results"))
+        {
+            throw IOException("Invalid response from Notion API: no results found");
+        }
+
+        // Process each page/row
+        auto &results = json_response["results"];
+        idx_t row_index = 0;
+
+        for (const auto &page : results)
+        {
+            if (!page.contains("properties"))
+            {
+                continue;
+            }
+
+            // Process each property/column
+            auto &properties = page["properties"];
+            idx_t col_index = 0;
+
+            for (const auto &property : properties.items())
+            {
+                const auto &prop_value = property.value();
+                const auto &prop_type = prop_value["type"].get<std::string>();
+
+                // Extract value based on property type
+                if (prop_type == "title" || prop_type == "rich_text")
+                {
+                    auto &text_array = prop_value[prop_type];
+                    std::string text = text_array.empty() ? "" : text_array[0]["plain_text"].get<std::string>();
+                    output.SetValue(col_index, row_index, Value(text));
+                }
+                else if (prop_type == "number")
+                {
+                    if (prop_value["number"].is_null())
+                    {
+                        output.SetValue(col_index, row_index, Value());
+                    }
+                    else
+                    {
+                        double number = prop_value["number"].get<double>();
+                        output.SetValue(col_index, row_index, Value(number));
+                    }
+                }
+                else if (prop_type == "date")
+                {
+                    if (prop_value["date"].is_null())
+                    {
+                        output.SetValue(col_index, row_index, Value());
+                    }
+                    else
+                    {
+                        std::string date = prop_value["date"]["start"].get<std::string>();
+                        output.SetValue(col_index, row_index, Value::TIMESTAMP(Timestamp::FromString(date)));
+                    }
+                }
+                else if (prop_type == "multi_select")
+                {
+                    auto tags = prop_value["multi_select"];
+                    std::string tag_list;
+                    for (size_t i = 0; i < tags.size(); i++)
+                    {
+                        if (i > 0)
+                            tag_list += ", ";
+                        tag_list += tags[i]["name"].get<std::string>();
+                    }
+                    output.SetValue(col_index, row_index, Value(tag_list));
+                }
+                else
+                {
+                    // Default to empty string for unsupported types
+                    output.SetValue(col_index, row_index, Value());
+                }
+
+                col_index++;
+            }
+            row_index++;
+        }
+
+        output.SetCardinality(row_index);
     }
 
-    // TODO
     unique_ptr<FunctionData> notion_bind_function(ClientContext &context, TableFunctionBindInput &input,
                                                   vector<LogicalType> &return_types, vector<string> &names)
     {

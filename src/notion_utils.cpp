@@ -62,25 +62,23 @@ namespace duckdb
     {
         try
         {
-            // Find the start of the JSON object
-            size_t start = json_str.find('{');
-            if (start == std::string::npos)
-            {
-                throw std::runtime_error("No JSON object found in the response");
+            // Clean control characters from the string
+            std::string clean_str;
+            clean_str.reserve(json_str.size());
+            
+            for (char c : json_str) {
+                // Skip control characters except \n, \r, \t
+                if (iscntrl(static_cast<unsigned char>(c))) {
+                    if (c == '\n') clean_str += "\\n";
+                    else if (c == '\r') clean_str += "\\r";
+                    else if (c == '\t') clean_str += "\\t";
+                    continue;
+                }
+                clean_str += c;
             }
 
-            // Find the end of the JSON object
-            size_t end = json_str.rfind('}');
-            if (end == std::string::npos)
-            {
-                throw std::runtime_error("No closing brace found in the JSON response");
-            }
-
-            // Extract the JSON object
-            std::string clean_json = json_str.substr(start, end - start + 1);
-
-            json j = json::parse(clean_json);
-            return j;
+            // Parse the cleaned JSON
+            return json::parse(clean_str);
         }
         catch (const json::exception &e)
         {
@@ -140,7 +138,7 @@ namespace duckdb
         {
             // Use the provided function to fetch each page
             std::string response = fetch_page(cursor);
-            auto json_response = nlohmann::json::parse(response);
+            auto json_response = parse_json(response);
 
             if (result.empty())
             {
@@ -148,7 +146,7 @@ namespace duckdb
             }
             else
             {
-                auto result_json = nlohmann::json::parse(result);
+                auto result_json = parse_json(result);
                 auto &results = result_json["results"];
                 results.insert(results.end(), json_response["results"].begin(), json_response["results"].end());
                 result = result_json.dump();
